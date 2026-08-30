@@ -136,10 +136,11 @@
                 <table class="table table-hover align-middle">
                     <thead class="table-dark">
                         <tr>
-                            <th>Flight</th>
-                            <th>Airline</th>
+                            <th>Flight & Aircraft</th>
+                            <th>Status</th>
                             <th>Departure → Arrival</th>
-                            <th>Times</th>
+                            <th>Terminal / Gate</th>
+                            <th>Departure Time</th>
                             <th>Price</th>
                             <th>Seats</th>
                             <th>Action</th>
@@ -148,16 +149,25 @@
                     <tbody>
                         <tr th:each="flight : ${flights}">
                             <td>
-                                <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1" th:text="${flight.flightNumber}">AI-101</span>
+                                <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1 mb-1" th:text="${flight.flightNumber}">AI-101</span>
+                                <div class="fw-semibold text-dark small" th:text="${flight.airlineName}">Air India</div>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;" th:text="${flight.aircraftModel}">Boeing 787</small>
                             </td>
-                            <td class="fw-semibold" th:text="${flight.airlineName}">Air India</td>
+                            <td>
+                                <span th:class="${flight.flightStatus == 'BOARDING' ? 'badge bg-warning text-dark' : (flight.flightStatus == 'DELAYED' ? 'badge bg-danger' : 'badge bg-success')}"
+                                      th:text="${flight.flightStatus}">ON_TIME</span>
+                            </td>
                             <td>
                                 <div class="fw-semibold" th:text="${flight.departureAirport}">Delhi</div>
                                 <div class="small text-secondary"><i class="fa-solid fa-arrow-down me-1"></i> <span th:text="${flight.arrivalAirport}">Mumbai</span></div>
                             </td>
                             <td>
-                                <span class="text-dark fw-medium" th:text="${flight.departureTime}">08:00</span> - 
-                                <span class="text-dark fw-medium" th:text="${flight.arrivalTime}">10:15</span>
+                                <div class="small fw-medium text-dark"><i class="fa-solid fa-building me-1 text-primary"></i> <span th:text="${flight.departureTerminal}">T3</span></div>
+                                <div class="small text-secondary"><i class="fa-solid fa-door-open me-1 text-success"></i> Gate <span th:text="${flight.gateNumber}">A12</span></div>
+                            </td>
+                            <td>
+                                <span class="text-dark fw-medium" th:text="${flight.departureTime}">08:00</span>
+                                <small class="text-muted d-block" th:text="${flight.durationMinutes + ' mins'}">135 mins</small>
                             </td>
                             <td class="fs-5 fw-bold text-success" th:text="'₹' + ${flight.price}">₹5500</td>
                             <td>
@@ -171,7 +181,7 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(flights)}">
-                            <td colspan="7" class="text-center py-4 text-secondary">
+                            <td colspan="8" class="text-center py-4 text-secondary">
                                 <i class="fa-solid fa-circle-exclamation fs-3 mb-2 d-block text-warning"></i>
                                 No flights found matching your search query. <a href="/">Reset Filters</a>
                             </td>
