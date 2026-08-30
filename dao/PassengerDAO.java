@@ -12,7 +12,7 @@ import java.util.List;
 public class PassengerDAO {
 
     public int addPassenger(Passenger passenger) {
-        String sql = "INSERT INTO passenger (booking_id, name, age, gender, seat_number) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO passenger (booking_id, name, age, gender, seat_number, nationality, meal_preference) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, passenger.getBookingId());
@@ -20,6 +20,8 @@ public class PassengerDAO {
             ps.setInt(3, passenger.getAge());
             ps.setString(4, passenger.getGender());
             ps.setString(5, passenger.getSeatNumber());
+            ps.setString(6, passenger.getNationality());
+            ps.setString(7, passenger.getMealPreference());
             int rows = ps.executeUpdate();
             if (rows > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -83,7 +85,7 @@ public class PassengerDAO {
     }
 
     public boolean updatePassenger(Passenger passenger) {
-        String sql = "UPDATE passenger SET booking_id = ?, name = ?, age = ?, gender = ?, seat_number = ? WHERE passenger_id = ?";
+        String sql = "UPDATE passenger SET booking_id = ?, name = ?, age = ?, gender = ?, seat_number = ?, nationality = ?, meal_preference = ? WHERE passenger_id = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, passenger.getBookingId());
@@ -91,7 +93,9 @@ public class PassengerDAO {
             ps.setInt(3, passenger.getAge());
             ps.setString(4, passenger.getGender());
             ps.setString(5, passenger.getSeatNumber());
-            ps.setInt(6, passenger.getPassengerId());
+            ps.setString(6, passenger.getNationality());
+            ps.setString(7, passenger.getMealPreference());
+            ps.setInt(8, passenger.getPassengerId());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             System.err.println("Error updating Passenger: " + e.getMessage());
@@ -112,13 +116,26 @@ public class PassengerDAO {
     }
 
     private Passenger extractPassenger(ResultSet rs) throws Exception {
+        String nationality = getSafeString(rs, "nationality", "Indian");
+        String meal = getSafeString(rs, "meal_preference", "Standard");
         return new Passenger(
             rs.getInt("passenger_id"),
             rs.getInt("booking_id"),
             rs.getString("name"),
             rs.getInt("age"),
             rs.getString("gender"),
-            rs.getString("seat_number")
+            rs.getString("seat_number"),
+            nationality,
+            meal
         );
+    }
+
+    private String getSafeString(ResultSet rs, String col, String defaultVal) {
+        try {
+            String val = rs.getString(col);
+            return val != null ? val : defaultVal;
+        } catch (Exception e) {
+            return defaultVal;
+        }
     }
 }

@@ -8,12 +8,16 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.Random;
 
 public class BookingDAO {
 
     public int addBooking(Booking booking) {
-        String sql = "INSERT INTO booking (customer_id, flight_id, booking_date, status, total_amount) VALUES (?, ?, ?, ?, ?)";
+        if (booking.getPnrCode() == null || booking.getPnrCode().trim().isEmpty()) {
+            booking.setPnrCode(generatePNR());
+        }
+
+        String sql = "INSERT INTO booking (customer_id, flight_id, booking_date, status, total_amount, pnr_code, cabin_class) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, booking.getCustomerId());
@@ -21,6 +25,8 @@ public class BookingDAO {
             ps.setString(3, booking.getBookingDate());
             ps.setString(4, booking.getStatus());
             ps.setDouble(5, booking.getTotalAmount());
+            ps.setString(6, booking.getPnrCode());
+            ps.setString(7, booking.getCabinClass());
             int rows = ps.executeUpdate();
             if (rows > 0) {
                 try (ResultSet rs = ps.getGeneratedKeys()) {
@@ -83,8 +89,24 @@ public class BookingDAO {
         return null;
     }
 
+    public Booking searchBookingByPNR(String pnrCode) {
+        String sql = "SELECT * FROM booking WHERE pnr_code = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, pnrCode);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return extractBooking(rs);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error searching Booking by PNR: " + e.getMessage());
+        }
+        return null;
+    }
+
     public boolean updateBooking(Booking booking) {
-        String sql = "UPDATE booking SET customer_id = ?, flight_id = ?, booking_date = ?, status = ?, total_amount = ? WHERE booking_id = ?";
+        String sql = "UPDATE booking SET customer_id = ?, flight_id = ?, booking_date = ?, status = ?, total_amount = ?, pnr_code = ?, cabin_class = ? WHERE booking_id = ?";
         try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, booking.getCustomerId());
@@ -92,7 +114,9 @@ public class BookingDAO {
             ps.setString(3, booking.getBookingDate());
             ps.setString(4, booking.getStatus());
             ps.setDouble(5, booking.getTotalAmount());
-            ps.setInt(6, booking.getBookingId());
+            ps.setString(6, booking.getPnrCode());
+            ps.setString(7, booking.getCabinClass());
+            ps.setInt(8, booking.getBookingId());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             System.err.println("Error updating Booking: " + e.getMessage());
@@ -113,16 +137,6 @@ public class BookingDAO {
         return false;
     }
 
-    public boolean deleteBooking() {
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Enter Booking ID: ");
-        if (sc.hasNextInt()) {
-            int id = sc.nextInt();
-            return deleteBooking(id);
-        }
-        return false;
-    }
-
     public boolean deleteBooking(int bookingId) {
         String sql = "DELETE FROM booking WHERE booking_id = ?";
         try (Connection con = DBConnection.getConnection();
@@ -135,39 +149,37 @@ public class BookingDAO {
         return false;
     }
 
-    public boolean bookFlightAtomic(int customerId, int flightId, String bookingDate, String passengerName, int passengerAge, String passengerGender, String seatNumber) {
-        String procSql = "{call sp_book_flight(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-        try (Connection con = DBConnection.getConnection();
-             java.sql.CallableStatement cs = con.prepareCall(procSql)) {
-            cs.setInt(1, customerId);
-            cs.setInt(2, flightId);
-            cs.setDate(3, java.sql.Date.valueOf(bookingDate));
-            cs.setString(4, passengerName);
-            cs.setInt(5, passengerAge);
-            cs.setString(6, passengerGender);
-            cs.setString(7, seatNumber);
-            cs.registerOutParameter(8, java.sql.Types.INTEGER);
-            cs.registerOutParameter(9, java.sql.Types.INTEGER);
-            cs.registerOutParameter(10, java.sql.Types.VARCHAR);
-            cs.registerOutParameter(11, java.sql.Types.INTEGER);
-            cs.execute();
-            int resultCode = cs.getInt(11);
-            return resultCode > 0 || cs.getInt(8) > 0;
-        } catch (Exception e) {
-            Booking b = new Booking(customerId, flightId, bookingDate, "CONFIRMED", 0.0);
-            int bId = addBooking(b);
-            return bId > 0;
-        }
-    }
-
     private Booking extractBooking(ResultSet rs) throws Exception {
+        String pnr = getSafeString(rs, "pnr_code", "SKY7X9");
+        String cabin = getSafeString(rs, "cabin_class", "Economy");
         return new Booking(
             rs.getInt("booking_id"),
             rs.getInt("customer_id"),
             rs.getInt("flight_id"),
             rs.getString("booking_date"),
             rs.getString("status"),
-            rs.getDouble("total_amount")
+            rs.getDouble("total_amount"),
+            pnr,
+            cabin
         );
+    }
+
+    private String getSafeString(ResultSet rs, String col, String defaultVal) {
+        try {
+            String val = rs.getString(col);
+            return val != null ? val : defaultVal;
+        } catch (Exception e) {
+            return defaultVal;
+        }
+    }
+
+    private String generatePNR() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder("SKY");
+        Random random = new Random();
+        for (int i = 0; i < 3; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
     }
 }
