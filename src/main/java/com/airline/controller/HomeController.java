@@ -37,9 +37,9 @@ public class HomeController {
                        @RequestParam(required = false) String arrival,
                        @RequestParam(required = false) String query,
                        Model model) {
-        if (departure != null && !departure.isBlank() && arrival != null && !arrival.isBlank()) {
+        if (departure != null && !departure.trim().isEmpty() && arrival != null && !arrival.trim().isEmpty()) {
             model.addAttribute("flights", flightDAO.searchFlightsByRoute(departure, arrival));
-        } else if (query != null && !query.isBlank()) {
+        } else if (query != null && !query.trim().isEmpty()) {
             model.addAttribute("flights", flightDAO.searchFlightsByQuery(query));
         } else {
             model.addAttribute("flights", flightDAO.getAllFlights());
@@ -96,8 +96,8 @@ public class HomeController {
 
     @PostMapping("/register")
     public String register(@ModelAttribute Customer customer, Model model, HttpSession session) {
-        if (customer.getUsername() == null || customer.getUsername().isBlank() ||
-            customer.getPassword() == null || customer.getPassword().isBlank()) {
+        if (customer.getUsername() == null || customer.getUsername().trim().isEmpty() ||
+            customer.getPassword() == null || customer.getPassword().trim().isEmpty()) {
             model.addAttribute("error", "Username and password are required.");
             return "register";
         }

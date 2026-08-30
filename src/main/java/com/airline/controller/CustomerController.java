@@ -112,6 +112,9 @@ public class CustomerController {
                                 @RequestParam int passengerAge,
                                 @RequestParam String passengerGender,
                                 @RequestParam String seatNumber,
+                                @RequestParam(defaultValue = "Indian") String nationality,
+                                @RequestParam(defaultValue = "Standard") String mealPreference,
+                                @RequestParam(defaultValue = "Economy") String cabinClass,
                                 @RequestParam String paymentMethod,
                                 HttpSession session) {
         Customer customer = (Customer) session.getAttribute("customer");
@@ -124,33 +127,45 @@ public class CustomerController {
             return "redirect:/customer/dashboard?error=Selected+flight+is+fully+booked.";
         }
 
+        double finalPrice = flight.getPrice();
+        if ("Business".equalsIgnoreCase(cabinClass)) {
+            finalPrice *= 2.0;
+        } else if ("Premium Economy".equalsIgnoreCase(cabinClass)) {
+            finalPrice *= 1.4;
+        } else if ("First".equalsIgnoreCase(cabinClass)) {
+            finalPrice *= 3.0;
+        }
+
         String today = LocalDate.now().toString();
-        Booking booking = new Booking(customer.getCustomerId(), flightId, today, "CONFIRMED", flight.getPrice());
+        Booking booking = new Booking(0, customer.getCustomerId(), flightId, today, "CONFIRMED", finalPrice, null, cabinClass);
         int bookingId = bookingDAO.addBooking(booking);
 
         if (bookingId > 0) {
-            Passenger passenger = new Passenger(bookingId, passengerName, passengerAge, passengerGender, seatNumber);
+            Booking freshBooking = bookingDAO.searchBookingById(bookingId);
+            String pnr = (freshBooking != null && freshBooking.getPnrCode() != null) ? freshBooking.getPnrCode() : "SKY" + (100 + new Random().nextInt(899));
+
+            Passenger passenger = new Passenger(0, bookingId, passengerName, passengerAge, passengerGender, seatNumber, nationality, mealPreference);
             int passengerId = passengerDAO.addPassenger(passenger);
 
             if (passengerId <= 0) {
-                passengerId = 1; // Fallback passenger ID if returned -1
+                passengerId = 1;
             }
 
             String ticketNum = "TKT-" + (10000 + new Random().nextInt(90000));
-            Ticket ticket = new Ticket(bookingId, passengerId, ticketNum, seatNumber, flight.getPrice(), today);
+            Ticket ticket = new Ticket(bookingId, passengerId, ticketNum, seatNumber, finalPrice, today);
             ticketDAO.addTicket(ticket);
 
-            Payment payment = new Payment(bookingId, flight.getPrice(), today, paymentMethod, "COMPLETED");
+            Payment payment = new Payment(bookingId, finalPrice, today, paymentMethod, "COMPLETED");
             paymentDAO.addPayment(payment);
 
             flightDAO.updateAvailableSeats(flightId, 1);
 
             String timeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             Notification note = new Notification(customer.getCustomerId(),
-                    "Flight " + flight.getFlightNumber() + " booked successfully! Ticket Code: " + ticketNum, timeNow, "UNREAD");
+                    "Flight " + flight.getFlightNumber() + " confirmed! PNR: " + pnr + " • Ticket: " + ticketNum, timeNow, "UNREAD");
             notificationDAO.addNotification(note);
 
-            return "redirect:/customer/ticket/number/" + ticketNum + "?success=Booking+confirmed+successfully!";
+            return "redirect:/customer/ticket/number/" + ticketNum + "?success=Flight+booked+successfully!+PNR:+"+pnr;
         }
 
         return "redirect:/customer/dashboard?error=Booking+failed.+Please+try+again.";
@@ -295,7 +310,7 @@ public class CustomerController {
         customer.setEmail(email);
         customer.setPhone(phone);
         customer.setPassportNumber(passportNumber);
-        if (password != null && !password.isBlank()) {
+        if (password != null && !password.trim().isEmpty()) {
             customer.setPassword(password);
         }
 
