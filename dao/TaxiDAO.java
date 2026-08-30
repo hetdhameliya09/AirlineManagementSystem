@@ -96,6 +96,19 @@ public class TaxiDAO {
         return false;
     }
 
+    public boolean updateTaxiStatus(int taxiId, String status) {
+        String sql = "UPDATE taxi SET status = ? WHERE taxi_id = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setInt(2, taxiId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.err.println("Error updating Taxi status: " + e.getMessage());
+        }
+        return false;
+    }
+
     public boolean deleteTaxi(int taxiId) {
         String sql = "DELETE FROM taxi WHERE taxi_id = ?";
         try (Connection con = DBConnection.getConnection();

@@ -7,6 +7,12 @@ import dao.FeedbackDAO;
 import dao.FlightDAO;
 import dao.HotelDAO;
 import dao.TaxiDAO;
+import dao.AirportDAO;
+import dao.PassengerDAO;
+import dao.TicketDAO;
+import dao.PaymentDAO;
+import dao.HotelBookingDAO;
+import dao.NotificationDAO;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -46,5 +52,35 @@ public class DaoConfig {
     @Bean
     public FeedbackDAO feedbackDAO() {
         return new FeedbackDAO();
+    }
+
+    @Bean
+    public AirportDAO airportDAO() {
+        return new AirportDAO();
+    }
+
+    @Bean
+    public PassengerDAO passengerDAO() {
+        return new PassengerDAO();
+    }
+
+    @Bean
+    public TicketDAO ticketDAO() {
+        return new TicketDAO();
+    }
+
+    @Bean
+    public PaymentDAO paymentDAO() {
+        return new PaymentDAO();
+    }
+
+    @Bean
+    public HotelBookingDAO hotelBookingDAO() {
+        return new HotelBookingDAO();
+    }
+
+    @Bean
+    public NotificationDAO notificationDAO() {
+        return new NotificationDAO();
     }
 }

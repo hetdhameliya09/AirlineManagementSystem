@@ -10,10 +10,25 @@ public class Flight {
     private String arrivalTime;
     private double price;
     private int availableSeats;
+    private String aircraftModel;
+    private String flightStatus; // ON_TIME, BOARDING, DELAYED, DEPARTED, CANCELLED
+    private String departureTerminal;
+    private String gateNumber;
+    private int durationMinutes;
 
-    public Flight() {}
+    public Flight() {
+        this.aircraftModel = "Airbus A320neo";
+        this.flightStatus = "ON_TIME";
+        this.departureTerminal = "T3";
+        this.gateNumber = "B04";
+        this.durationMinutes = 135;
+    }
 
     public Flight(int flightId, String flightNumber, String airlineName, String departureAirport, String arrivalAirport, String departureTime, String arrivalTime, double price, int availableSeats) {
+        this(flightId, flightNumber, airlineName, departureAirport, arrivalAirport, departureTime, arrivalTime, price, availableSeats, "Airbus A320neo", "ON_TIME", "T3", "B04", 135);
+    }
+
+    public Flight(int flightId, String flightNumber, String airlineName, String departureAirport, String arrivalAirport, String departureTime, String arrivalTime, double price, int availableSeats, String aircraftModel, String flightStatus, String departureTerminal, String gateNumber, int durationMinutes) {
         this.flightId = flightId;
         this.flightNumber = flightNumber;
         this.airlineName = airlineName;
@@ -23,17 +38,11 @@ public class Flight {
         this.arrivalTime = arrivalTime;
         this.price = price;
         this.availableSeats = availableSeats;
-    }
-
-    public Flight(String flightNumber, String airlineName, String departureAirport, String arrivalAirport, String departureTime, String arrivalTime, double price, int availableSeats) {
-        this.flightNumber = flightNumber;
-        this.airlineName = airlineName;
-        this.departureAirport = departureAirport;
-        this.arrivalAirport = arrivalAirport;
-        this.departureTime = departureTime;
-        this.arrivalTime = arrivalTime;
-        this.price = price;
-        this.availableSeats = availableSeats;
+        this.aircraftModel = aircraftModel;
+        this.flightStatus = flightStatus;
+        this.departureTerminal = departureTerminal;
+        this.gateNumber = gateNumber;
+        this.durationMinutes = durationMinutes;
     }
 
     public int getFlightId() {
@@ -108,8 +117,43 @@ public class Flight {
         this.availableSeats = availableSeats;
     }
 
-    @Override
-    public String toString() {
-        return "Flight [ID=" + flightId + ", Number=" + flightNumber + ", Airline=" + airlineName + ", From=" + departureAirport + ", To=" + arrivalAirport + ", Dep=" + departureTime + ", Arr=" + arrivalTime + ", Price=$" + price + ", Seats=" + availableSeats + "]";
+    public String getAircraftModel() {
+        return aircraftModel != null ? aircraftModel : "Airbus A320neo";
+    }
+
+    public void setAircraftModel(String aircraftModel) {
+        this.aircraftModel = aircraftModel;
+    }
+
+    public String getFlightStatus() {
+        return flightStatus != null ? flightStatus : "ON_TIME";
+    }
+
+    public void setFlightStatus(String flightStatus) {
+        this.flightStatus = flightStatus;
+    }
+
+    public String getDepartureTerminal() {
+        return departureTerminal != null ? departureTerminal : "T3";
+    }
+
+    public void setDepartureTerminal(String departureTerminal) {
+        this.departureTerminal = departureTerminal;
+    }
+
+    public String getGateNumber() {
+        return gateNumber != null ? gateNumber : "B04";
+    }
+
+    public void setGateNumber(String gateNumber) {
+        this.gateNumber = gateNumber;
+    }
+
+    public int getDurationMinutes() {
+        return durationMinutes > 0 ? durationMinutes : 135;
+    }
+
+    public void setDurationMinutes(int durationMinutes) {
+        this.durationMinutes = durationMinutes;
     }
 }
