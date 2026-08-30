@@ -7,24 +7,31 @@ public class Passenger {
     private int age;
     private String gender;
     private String seatNumber;
+    private String nationality;
+    private String mealPreference;
 
-    public Passenger() {}
+    public Passenger() {
+        this.nationality = "Indian";
+        this.mealPreference = "Standard";
+    }
 
     public Passenger(int passengerId, int bookingId, String name, int age, String gender, String seatNumber) {
+        this(passengerId, bookingId, name, age, gender, seatNumber, "Indian", "Standard");
+    }
+
+    public Passenger(int bookingId, String name, int age, String gender, String seatNumber) {
+        this(0, bookingId, name, age, gender, seatNumber, "Indian", "Standard");
+    }
+
+    public Passenger(int passengerId, int bookingId, String name, int age, String gender, String seatNumber, String nationality, String mealPreference) {
         this.passengerId = passengerId;
         this.bookingId = bookingId;
         this.name = name;
         this.age = age;
         this.gender = gender;
         this.seatNumber = seatNumber;
-    }
-
-    public Passenger(int bookingId, String name, int age, String gender, String seatNumber) {
-        this.bookingId = bookingId;
-        this.name = name;
-        this.age = age;
-        this.gender = gender;
-        this.seatNumber = seatNumber;
+        this.nationality = nationality;
+        this.mealPreference = mealPreference;
     }
 
     public int getPassengerId() {
@@ -75,8 +82,19 @@ public class Passenger {
         this.seatNumber = seatNumber;
     }
 
-    @Override
-    public String toString() {
-        return "Passenger [ID=" + passengerId + ", BookingID=" + bookingId + ", Name=" + name + ", Age=" + age + ", Gender=" + gender + ", Seat=" + seatNumber + "]";
+    public String getNationality() {
+        return nationality != null ? nationality : "Indian";
+    }
+
+    public void setNationality(String nationality) {
+        this.nationality = nationality;
+    }
+
+    public String getMealPreference() {
+        return mealPreference != null ? mealPreference : "Standard";
+    }
+
+    public void setMealPreference(String mealPreference) {
+        this.mealPreference = mealPreference;
     }
 }

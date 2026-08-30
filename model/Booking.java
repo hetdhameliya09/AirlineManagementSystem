@@ -7,24 +7,30 @@ public class Booking {
     private String bookingDate;
     private String status;
     private double totalAmount;
+    private String pnrCode;
+    private String cabinClass; // Economy, Premium Economy, Business, First
 
-    public Booking() {}
+    public Booking() {
+        this.cabinClass = "Economy";
+    }
 
     public Booking(int bookingId, int customerId, int flightId, String bookingDate, String status, double totalAmount) {
+        this(bookingId, customerId, flightId, bookingDate, status, totalAmount, null, "Economy");
+    }
+
+    public Booking(int customerId, int flightId, String bookingDate, String status, double totalAmount) {
+        this(0, customerId, flightId, bookingDate, status, totalAmount, null, "Economy");
+    }
+
+    public Booking(int bookingId, int customerId, int flightId, String bookingDate, String status, double totalAmount, String pnrCode, String cabinClass) {
         this.bookingId = bookingId;
         this.customerId = customerId;
         this.flightId = flightId;
         this.bookingDate = bookingDate;
         this.status = status;
         this.totalAmount = totalAmount;
-    }
-
-    public Booking(int customerId, int flightId, String bookingDate, String status, double totalAmount) {
-        this.customerId = customerId;
-        this.flightId = flightId;
-        this.bookingDate = bookingDate;
-        this.status = status;
-        this.totalAmount = totalAmount;
+        this.pnrCode = pnrCode;
+        this.cabinClass = cabinClass;
     }
 
     public int getBookingId() {
@@ -75,8 +81,19 @@ public class Booking {
         this.totalAmount = totalAmount;
     }
 
-    @Override
-    public String toString() {
-        return "Booking [ID=" + bookingId + ", CustomerID=" + customerId + ", FlightID=" + flightId + ", Date=" + bookingDate + ", Status=" + status + ", Total=$" + totalAmount + "]";
+    public String getPnrCode() {
+        return pnrCode;
+    }
+
+    public void setPnrCode(String pnrCode) {
+        this.pnrCode = pnrCode;
+    }
+
+    public String getCabinClass() {
+        return cabinClass != null ? cabinClass : "Economy";
+    }
+
+    public void setCabinClass(String cabinClass) {
+        this.cabinClass = cabinClass;
     }
 }

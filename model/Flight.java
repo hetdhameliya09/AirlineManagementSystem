@@ -28,6 +28,10 @@ public class Flight {
         this(flightId, flightNumber, airlineName, departureAirport, arrivalAirport, departureTime, arrivalTime, price, availableSeats, "Airbus A320neo", "ON_TIME", "T3", "B04", 135);
     }
 
+    public Flight(String flightNumber, String airlineName, String departureAirport, String arrivalAirport, String departureTime, String arrivalTime, double price, int availableSeats) {
+        this(0, flightNumber, airlineName, departureAirport, arrivalAirport, departureTime, arrivalTime, price, availableSeats, "Airbus A320neo", "ON_TIME", "T3", "B04", 135);
+    }
+
     public Flight(int flightId, String flightNumber, String airlineName, String departureAirport, String arrivalAirport, String departureTime, String arrivalTime, double price, int availableSeats, String aircraftModel, String flightStatus, String departureTerminal, String gateNumber, int durationMinutes) {
         this.flightId = flightId;
         this.flightNumber = flightNumber;
