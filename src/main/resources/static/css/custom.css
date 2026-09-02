@@ -1,0 +1,311 @@
+/* ==========================================================================
+   SkyWays Airline Management System - Premium Ultra Advanced Stylesheet
+   ========================================================================== */
+
+:root {
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: #eff6ff;
+    --secondary: #475569;
+    --accent: #0284c7;
+    --accent-hover: #0369a1;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --dark-bg: #0f172a;
+    --dark-card: #1e293b;
+    --light-bg: #f8fafc;
+    --light-card: #ffffff;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --glass-bg: rgba(255, 255, 255, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.15);
+    --radius-sm: 8px;
+    --radius-md: 14px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+}
+
+[data-theme="dark"] {
+    --light-bg: #0b1120;
+    --light-card: #151e32;
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #1e293b;
+    --glass-bg: rgba(21, 30, 50, 0.85);
+    --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Glassmorphism & Navbar */
+.navbar-glass {
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.brand-logo {
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Hero & Header Banner */
+.hero-wrapper {
+    position: relative;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0369a1 100%);
+    color: #ffffff;
+    padding: 5rem 0 6rem 0;
+    border-radius: 0 0 40px 40px;
+    overflow: hidden;
+}
+
+.hero-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+/* Custom Card Styles */
+.card-custom {
+    background: var(--light-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card-custom:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Flight Route Line Visualizer */
+.flight-route-line {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.flight-route-line::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: border-box;
+    border-top: 2px dashed var(--accent);
+    z-index: 1;
+}
+
+.flight-plane-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(90deg);
+    background: var(--light-card);
+    color: var(--accent);
+    padding: 6px;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(2, 132, 199, 0.3);
+    z-index: 2;
+}
+
+/* 2D Interactive Seat Picker Component */
+.airplane-cabin {
+    background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+    border: 2px solid #cbd5e1;
+    border-radius: 40px 40px 20px 20px;
+    padding: 2.5rem 1.5rem;
+    max-width: 520px;
+    margin: 0 auto;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+}
+
+.cockpit-header {
+    text-align: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px dashed #94a3b8;
+}
+
+.seat-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.seat-aisle {
+    width: 28px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.seat-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 2px solid #cbd5e1;
+    background: #ffffff;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.seat-btn:hover:not(.occupied) {
+    border-color: var(--primary);
+    background: var(--primary-light);
+    transform: scale(1.08);
+}
+
+.seat-btn.selected {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary-hover) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    transform: scale(1.1);
+}
+
+.seat-btn.occupied {
+    background: #e2e8f0 !important;
+    color: #94a3b8 !important;
+    border-color: #cbd5e1 !important;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.seat-btn.first-class {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.seat-btn.business-class {
+    border-color: #8b5cf6;
+    background: #f5f3ff;
+}
+
+/* Digital E-Ticket Barcode Styles */
+.barcode-visualizer {
+    height: 50px;
+    background-image: repeating-linear-gradient(
+        90deg,
+        #000,
+        #000 3px,
+        #fff 3px,
+        #fff 5px,
+        #000 5px,
+        #000 8px,
+        #fff 8px,
+        #fff 11px
+    );
+    border-radius: 4px;
+    margin: 1rem 0;
+    box-shadow: inset 0 0 4px rgba(0,0,0,0.1);
+}
+
+/* Status Badges */
+.badge-status {
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.badge-on-time { background: #dcfce7; color: #15803d; }
+.badge-boarding { background: #fef3c7; color: #b45309; animation: pulse 2s infinite; }
+.badge-delayed { background: #fee2e2; color: #b91c1c; }
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+
+/* Tab Navigation Styling */
+.nav-pills-custom .nav-link {
+    color: var(--text-muted);
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.nav-pills-custom .nav-link.active {
+    background-color: var(--primary);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+/* Quick Search Card floating */
+.search-widget {
+    background: var(--light-card);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    padding: 2rem;
+    margin-top: -3.5rem;
+    border: 1px solid var(--border-color);
+    position: relative;
+    z-index: 10;
+}
+
+/* Carrier Logos & Icons */
+.carrier-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #ffffff;
+    background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+    box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
+}
+
+/* Print Rules */
+@media print {
+    .no-print { display: none !important; }
+    body { background: #ffffff !important; color: #000000 !important; }
+    .ticket-card { box-shadow: none !important; border: 2px solid #000000 !important; }
+}
