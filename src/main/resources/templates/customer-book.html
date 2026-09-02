@@ -3,79 +3,31 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Book Flight & Secure Checkout | SkyWays</title>
+    <title>Book Flight & Interactive 2D Seat Selection | SkyWays</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f4f7fc; }
-        .card-custom { border-radius: 20px; border: none; box-shadow: 0 12px 30px rgba(0,0,0,0.06); }
-        .credit-card-preview {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-            color: #ffffff;
-            border-radius: 18px;
-            padding: 1.5rem;
-            box-shadow: 0 15px 35px rgba(15, 23, 42, 0.25);
-            position: relative;
-            overflow: hidden;
-            min-height: 180px;
-        }
-        .credit-card-preview::before {
-            content: '';
-            position: absolute;
-            top: -40px;
-            right: -40px;
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .card-number-display {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1.25rem;
-            letter-spacing: 2px;
-        }
-        .payment-option-btn {
-            border: 2px solid #e2e8f0;
-            border-radius: 14px;
-            padding: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .payment-option-btn:hover { border-color: #3b82f6; background-color: #f8fafc; }
-        .btn-check:checked + .payment-option-btn {
-            border-color: #2563eb;
-            background-color: #eff6ff;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
-        }
-        .qr-box {
-            background: #ffffff;
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 1.25rem;
-            display: inline-block;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/custom.css}" href="/css/custom.css" />
 </head>
 <body>
 
     <!-- Header Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-3">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-plane-departure text-info me-2"></i>SkyWays Airlines</a>
+            <a class="navbar-brand fw-bold brand-logo" href="/"><i class="fa-solid fa-paper-plane me-2"></i>SkyWays Airlines</a>
             <div class="ms-auto d-flex align-items-center gap-2">
-                <a href="/customer/dashboard" class="btn btn-outline-light btn-sm rounded-pill"><i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard</a>
+                <a href="/customer/dashboard" class="btn btn-outline-light btn-sm rounded-pill px-3"><i class="fa-solid fa-arrow-left me-1"></i> Dashboard</a>
             </div>
         </div>
     </nav>
 
-    <div class="container py-4 max-w-900" style="max-width: 950px;">
+    <div class="container py-4 max-w-950" style="max-width: 1050px;">
 
         <div class="row g-4">
             
-            <!-- Flight Summary Card -->
-            <div class="col-md-5">
-                <div class="card card-custom p-4 bg-white">
+            <!-- Flight Summary & 2D Seat Map Visualizer -->
+            <div class="col-lg-5">
+                <div class="card card-custom p-4 bg-white mb-4">
                     <h5 class="fw-bold mb-3"><i class="fa-solid fa-plane-circle-check text-primary me-2"></i> Flight Summary</h5>
                     <div class="p-3 bg-light rounded-3 mb-3 border">
                         <div class="d-flex justify-content-between mb-1">
@@ -106,46 +58,74 @@
                             <span class="fw-bold text-dark" th:text="'₹' + ${flight.price}">₹5,500</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="fw-medium text-secondary small" id="class-multiplier-label">Cabin Class Fare</span>
+                            <span class="fw-medium text-secondary small" id="class-multiplier-label">Cabin Fare</span>
                             <span class="fw-semibold text-secondary small" id="class-multiplier-val">Economy (1.0x)</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-medium text-secondary small">Selected Seat</span>
+                            <span class="badge bg-success text-white font-mono fs-6" id="selected-seat-badge">12A</span>
                         </div>
                         <hr class="my-2">
                         <div class="d-flex justify-content-between align-items-center">
-                            <span class="fw-bold text-dark fs-6">Total Payable</span>
+                            <span class="fw-bold text-dark fs-6">Total Amount</span>
                             <h3 class="fw-extrabold text-success mb-0" id="total-price-display" th:text="'₹' + ${flight.price}">₹5,500</h3>
                         </div>
                     </div>
+                </div>
 
-                    <div class="small text-secondary bg-light p-2 rounded border">
-                        <i class="fa-solid fa-shield-halved text-success me-1"></i> 256-Bit Encrypted Secure SSL Payment Gateway
+                <!-- 2D Seat Map Card -->
+                <div class="card card-custom p-4 bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0"><i class="fa-solid fa-chair text-primary me-2"></i> 2D Airplane Seat Map</h6>
+                        <small class="text-muted">Click seat to pick</small>
+                    </div>
+
+                    <div class="airplane-cabin">
+                        <div class="cockpit-header">
+                            <i class="fa-solid fa-plane-up text-primary fs-3"></i>
+                            <div class="small fw-bold text-uppercase text-secondary mt-1">COCKPIT</div>
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="d-flex justify-content-center gap-3 mb-3 small">
+                            <span><span class="d-inline-block rounded-1 bg-white border border-primary p-1 me-1" style="width:12px;height:12px;"></span> Available</span>
+                            <span><span class="d-inline-block rounded-1 bg-primary p-1 me-1" style="width:12px;height:12px;"></span> Selected</span>
+                            <span><span class="d-inline-block rounded-1 bg-secondary opacity-50 p-1 me-1" style="width:12px;height:12px;"></span> Occupied</span>
+                        </div>
+
+                        <!-- Seat Rows Grid -->
+                        <div class="seat-grid" id="seatGridContainer">
+                            <!-- Rows generated by JS -->
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Booking & Payment Form -->
-            <div class="col-md-7">
+            <div class="col-lg-7">
                 <div class="card card-custom p-4 bg-white">
                     <h4 class="fw-bold mb-3"><i class="fa-solid fa-user-pen text-primary me-2"></i> Passenger & Payment Details</h4>
 
                     <form method="post" action="/customer/book" id="booking-payment-form">
                         <input type="hidden" name="flightId" th:value="${flight.flightId}" />
                         <input type="hidden" id="base-price-hidden" th:value="${flight.price}" />
+                        <input type="hidden" id="seatNumberInput" name="seatNumber" value="12A" />
 
                         <!-- Passenger Name -->
                         <div class="mb-3">
-                            <label class="form-label text-secondary fw-medium small">Passenger Full Name</label>
-                            <input type="text" name="passengerName" th:value="${customer.name}" class="form-control bg-light" required />
+                            <label class="form-label text-secondary fw-semibold small">Passenger Full Name</label>
+                            <input type="text" name="passengerName" th:value="${customer.name}" class="form-control bg-light py-2" required />
                         </div>
 
                         <!-- Age & Gender -->
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label class="form-label text-secondary fw-medium small">Age</label>
-                                <input type="number" name="passengerAge" value="28" min="1" max="100" class="form-control bg-light" required />
+                                <label class="form-label text-secondary fw-semibold small">Age</label>
+                                <input type="number" name="passengerAge" value="28" min="1" max="100" class="form-control bg-light py-2" required />
                             </div>
                             <div class="col-6">
-                                <label class="form-label text-secondary fw-medium small">Gender</label>
-                                <select name="passengerGender" class="form-select bg-light">
+                                <label class="form-label text-secondary fw-semibold small">Gender</label>
+                                <select name="passengerGender" class="form-select bg-light py-2">
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                     <option value="Other">Other</option>
@@ -156,12 +136,12 @@
                         <!-- Nationality & Meal -->
                         <div class="row g-3 mb-3">
                             <div class="col-6">
-                                <label class="form-label text-secondary fw-medium small">Nationality</label>
-                                <input type="text" name="nationality" value="Indian" class="form-control bg-light" required />
+                                <label class="form-label text-secondary fw-semibold small">Nationality</label>
+                                <input type="text" name="nationality" value="Indian" class="form-control bg-light py-2" required />
                             </div>
                             <div class="col-6">
-                                <label class="form-label text-secondary fw-medium small">Meal Preference</label>
-                                <select name="mealPreference" class="form-select bg-light">
+                                <label class="form-label text-secondary fw-semibold small">Meal Preference</label>
+                                <select name="mealPreference" class="form-select bg-light py-2">
                                     <option value="Vegetarian">Vegetarian (Asian Veg)</option>
                                     <option value="Non-Veg">Standard Non-Veg</option>
                                     <option value="Jain">Jain Meal</option>
@@ -170,28 +150,14 @@
                             </div>
                         </div>
 
-                        <!-- Cabin Class & Seat -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-6">
-                                <label class="form-label text-secondary fw-medium small">Cabin Class</label>
-                                <select name="cabinClass" id="cabinClassSelect" class="form-select bg-light" onchange="recalculatePrice()">
-                                    <option value="Economy">Economy Class (Base Fare)</option>
-                                    <option value="Premium Economy">Premium Economy (+40%)</option>
-                                    <option value="Business">Business Class (+100%)</option>
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label text-secondary fw-medium small">Select Seat</label>
-                                <select name="seatNumber" class="form-select bg-light" required>
-                                    <option value="12A">12A (Window)</option>
-                                    <option value="12B">12B (Middle)</option>
-                                    <option value="12C">12C (Aisle)</option>
-                                    <option value="14A">14A (Window)</option>
-                                    <option value="14C">14C (Aisle)</option>
-                                    <option value="18F">18F (Window)</option>
-                                    <option value="02A">02A (Business Window)</option>
-                                </select>
-                            </div>
+                        <!-- Cabin Class -->
+                        <div class="mb-4">
+                            <label class="form-label text-secondary fw-semibold small">Cabin Class</label>
+                            <select name="cabinClass" id="cabinClassSelect" class="form-select bg-light py-2" onchange="recalculatePrice()">
+                                <option value="Economy">Economy Class (Base Fare)</option>
+                                <option value="Premium Economy">Premium Economy (+40%)</option>
+                                <option value="Business">Business Class (+100%)</option>
+                            </select>
                         </div>
 
                         <hr class="my-4">
@@ -222,14 +188,14 @@
                             </div>
                         </div>
 
-                        <!-- SECTION Placeholder: Displayed when no mode is selected yet -->
+                        <!-- SECTION Placeholder -->
                         <div id="section-no-payment-selected" class="p-4 bg-light rounded-4 border mb-4 text-center">
                             <i class="fa-solid fa-hand-pointer fs-2 text-primary mb-2 d-block"></i>
                             <h6 class="fw-bold text-dark mb-1">Please Select a Payment Method Above</h6>
-                            <small class="text-muted">Choose <strong>UPI / QR Code</strong> or <strong>Credit / Debit Card</strong> to open the secure payment process.</small>
+                            <small class="text-muted">Choose <strong>UPI / QR Code</strong> or <strong>Credit / Debit Card</strong> to complete checkout.</small>
                         </div>
 
-                        <!-- SECTION A: Real-Life UPI QR Code Payment (Hidden by default) -->
+                        <!-- SECTION A: UPI QR Code -->
                         <div id="section-upi-payment" class="p-4 bg-light rounded-4 border mb-4 text-center d-none">
                             <span class="badge bg-warning-subtle text-dark fw-bold px-3 py-1 rounded-pill mb-2">
                                 <i class="fa-solid fa-clock me-1 text-danger"></i> Session Expiration: <span id="upi-timer">04:59</span>
@@ -241,14 +207,6 @@
                                 </div>
                                 <div class="small fw-semibold text-dark">Scan QR Code with any UPI App</div>
                                 <div class="text-muted small">Merchant: <strong class="text-primary">skyways.airlines@okaxis</strong></div>
-                            </div>
-
-                            <!-- Supported Apps Badges -->
-                            <div class="d-flex justify-content-center gap-2 my-3">
-                                <span class="badge bg-white text-dark border px-2 py-1"><i class="fa-brands fa-google text-primary me-1"></i> GPay</span>
-                                <span class="badge bg-white text-dark border px-2 py-1"><i class="fa-solid fa-mobile-screen text-purple me-1"></i> PhonePe</span>
-                                <span class="badge bg-white text-dark border px-2 py-1"><i class="fa-solid fa-wallet text-info me-1"></i> Paytm</span>
-                                <span class="badge bg-white text-dark border px-2 py-1"><i class="fa-solid fa-building-columns text-success me-1"></i> BHIM</span>
                             </div>
 
                             <hr class="my-3">
@@ -263,10 +221,8 @@
                             </div>
                         </div>
 
-                        <!-- SECTION B: Real-Life Credit / Debit Card Process (Hidden by default) -->
+                        <!-- SECTION B: Credit / Debit Card -->
                         <div id="section-card-payment" class="p-4 bg-light rounded-4 border mb-4 d-none">
-
-                            <!-- Interactive Card Preview -->
                             <div class="credit-card-preview mb-4">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <i class="fa-solid fa-microchip fs-3 text-warning"></i>
@@ -285,13 +241,9 @@
                                 </div>
                             </div>
 
-                            <!-- Card Input Fields -->
                             <div class="mb-3">
                                 <label class="form-label text-secondary fw-medium small">Card Number</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-white"><i class="fa-solid fa-credit-card text-muted"></i></span>
-                                    <input type="text" class="form-control" id="inputCardNumber" placeholder="4111 2222 3333 4444" maxlength="19" oninput="updateCardPreview()" />
-                                </div>
+                                <input type="text" class="form-control" id="inputCardNumber" placeholder="4111 2222 3333 4444" maxlength="19" oninput="updateCardPreview()" />
                             </div>
 
                             <div class="mb-3">
@@ -313,7 +265,7 @@
 
                         <!-- Submit Button -->
                         <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 fw-bold fs-6 shadow-sm">
-                            <i class="fa-solid fa-lock me-2"></i> Pay Now & Generate Boarding Pass
+                            <i class="fa-solid fa-lock me-2"></i> Complete Booking & Generate Boarding Pass
                         </button>
                     </form>
                 </div>
@@ -326,6 +278,61 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let currentBasePrice = parseFloat(document.getElementById('base-price-hidden').value) || 5500;
+        let selectedSeat = '12A';
+
+        // Generate 2D Airplane Seat Layout dynamically
+        function initSeatGrid() {
+            const container = document.getElementById('seatGridContainer');
+            if (!container) return;
+
+            const occupiedSeats = ['01B', '03C', '05E', '08B', '10D'];
+            const rows = [
+                { num: '01', seats: ['A', 'B', 'C', 'D'], class: 'first-class' },
+                { num: '02', seats: ['A', 'B', 'C', 'D'], class: 'business-class' },
+                { num: '05', seats: ['A', 'B', 'C', 'D', 'E', 'F'], class: 'economy' },
+                { num: '08', seats: ['A', 'B', 'C', 'D', 'E', 'F'], class: 'economy' },
+                { num: '12', seats: ['A', 'B', 'C', 'D', 'E', 'F'], class: 'economy' },
+                { num: '15', seats: ['A', 'B', 'C', 'D', 'E', 'F'], class: 'economy' }
+            ];
+
+            let html = '';
+            rows.forEach(r => {
+                html += `<div class="seat-row">`;
+                const half = Math.ceil(r.seats.length / 2);
+                const leftGroup = r.seats.slice(0, half);
+                const rightGroup = r.seats.slice(half);
+
+                leftGroup.forEach(s => {
+                    const code = r.num + s;
+                    const isOccupied = occupiedSeats.includes(code);
+                    const isSelected = (code === selectedSeat);
+                    html += `<div class="seat-btn ${r.class} ${isOccupied ? 'occupied' : ''} ${isSelected ? 'selected' : ''}" 
+                                  onclick="selectSeat('${code}', ${isOccupied})">${code}</div>`;
+                });
+
+                html += `<div class="seat-aisle">${r.num}</div>`;
+
+                rightGroup.forEach(s => {
+                    const code = r.num + s;
+                    const isOccupied = occupiedSeats.includes(code);
+                    const isSelected = (code === selectedSeat);
+                    html += `<div class="seat-btn ${r.class} ${isOccupied ? 'occupied' : ''} ${isSelected ? 'selected' : ''}" 
+                                  onclick="selectSeat('${code}', ${isOccupied})">${code}</div>`;
+                });
+
+                html += `</div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectSeat(seatCode, isOccupied) {
+            if (isOccupied) return;
+            selectedSeat = seatCode;
+            document.getElementById('seatNumberInput').value = seatCode;
+            document.getElementById('selected-seat-badge').innerText = seatCode;
+            initSeatGrid();
+        }
 
         function recalculatePrice() {
             const cabin = document.getElementById('cabinClassSelect').value;
@@ -344,7 +351,6 @@
             document.getElementById('class-multiplier-val').innerText = label;
             document.getElementById('total-price-display').innerText = '₹' + finalAmount.toLocaleString('en-IN');
 
-            // Update QR code payload with dynamic price
             const upiUri = `upi://pay?pa=skyways.airlines@okaxis&pn=SkyWays+Airlines&am=${finalAmount}&cu=INR&tn=Flight+Booking`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUri)}`;
             document.getElementById('upi-qr-img').src = qrUrl;
@@ -370,7 +376,6 @@
             let num = document.getElementById('inputCardNumber').value;
             if (!num) num = '4111 •••• •••• 4242';
 
-            // Auto detect network
             const badge = document.getElementById('card-network-badge');
             if (num.startsWith('4')) {
                 badge.innerText = 'VISA';
@@ -405,7 +410,12 @@
             }
         }
 
-        // Live Countdown Timer for UPI Session
+        // Initialize seat grid on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initSeatGrid();
+        });
+
+        // Timer countdown
         let duration = 299;
         const timerDisplay = document.getElementById('upi-timer');
         setInterval(() => {
