@@ -1,5 +1,6 @@
 package com.airline.controller;
 
+import com.airline.service.OtpService;
 import dao.AirportDAO;
 import dao.CustomerDAO;
 import dao.FlightDAO;
@@ -24,12 +25,14 @@ public class HomeController {
     private final AirportDAO airportDAO;
     private final CustomerDAO customerDAO;
     private final NotificationDAO notificationDAO;
+    private final OtpService otpService;
 
-    public HomeController(FlightDAO flightDAO, AirportDAO airportDAO, CustomerDAO customerDAO, NotificationDAO notificationDAO) {
+    public HomeController(FlightDAO flightDAO, AirportDAO airportDAO, CustomerDAO customerDAO, NotificationDAO notificationDAO, OtpService otpService) {
         this.flightDAO = flightDAO;
         this.airportDAO = airportDAO;
         this.customerDAO = customerDAO;
         this.notificationDAO = notificationDAO;
+        this.otpService = otpService;
     }
 
     @GetMapping("/")
@@ -95,10 +98,29 @@ public class HomeController {
     }
 
     @PostMapping("/register")
-    public String register(@ModelAttribute Customer customer, Model model, HttpSession session) {
+    public String register(@ModelAttribute Customer customer,
+                           @RequestParam(required = false) String otpCode,
+                           Model model,
+                           HttpSession session) {
         if (customer.getUsername() == null || customer.getUsername().trim().isEmpty() ||
             customer.getPassword() == null || customer.getPassword().trim().isEmpty()) {
             model.addAttribute("error", "Username and password are required.");
+            return "register";
+        }
+
+        if (customer.getPhone() == null || customer.getPhone().trim().isEmpty()) {
+            model.addAttribute("error", "Mobile contact number is required for OTP verification.");
+            return "register";
+        }
+
+        // Enforce Real Mobile OTP Authentication
+        boolean isOtpValid = otpService.isPhoneVerified(customer.getPhone(), session);
+        if (!isOtpValid && otpCode != null && !otpCode.trim().isEmpty()) {
+            isOtpValid = otpService.verifyOtp(customer.getPhone(), otpCode, session);
+        }
+
+        if (!isOtpValid) {
+            model.addAttribute("error", "Mobile OTP Authentication Failed! Please enter the correct OTP sent to " + customer.getPhone());
             return "register";
         }
 
@@ -108,13 +130,13 @@ public class HomeController {
             if (loggedIn != null) {
                 // Send welcome notification
                 String now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                Notification n = new Notification(loggedIn.getCustomerId(), "Welcome to SkyWays Airline! Account created successfully.", now, "UNREAD");
+                Notification n = new Notification(loggedIn.getCustomerId(), "Welcome to SkyWays Airline! Mobile number verified & account created successfully.", now, "UNREAD");
                 notificationDAO.addNotification(n);
 
                 session.setAttribute("userRole", "CUSTOMER");
                 session.setAttribute("customer", loggedIn);
                 session.setAttribute("username", loggedIn.getName());
-                return "redirect:/customer/dashboard?success=Welcome!+Registration+successful.";
+                return "redirect:/customer/dashboard?success=Welcome!+Registration+and+Mobile+OTP+Verification+successful.";
             }
             return "redirect:/login?success=Account+created+successfully.+Please+login.";
         }
