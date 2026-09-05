@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register | SkyWays Airlines</title>
+    <title>Register & Mobile OTP Verification | SkyWays Airlines</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -21,12 +21,40 @@
             background: #ffffff;
             border-radius: 24px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            max-width: 580px;
+            max-width: 620px;
             width: 100%;
             padding: 2.5rem;
         }
         .btn-sky { background-color: #00b4d8; color: #ffffff; font-weight: 600; border-radius: 12px; }
         .btn-sky:hover { background-color: #0077b6; color: #ffffff; }
+        .otp-container {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        .otp-container.active {
+            border-color: #00b4d8;
+            background: #f0f9ff;
+        }
+        .otp-container.verified {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+        .otp-input {
+            letter-spacing: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-align: center;
+        }
+        .badge-verified {
+            background-color: #dcfce7;
+            color: #166534;
+            font-size: 0.85rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50rem;
+        }
     </style>
 </head>
 <body>
@@ -37,7 +65,7 @@
                 <div class="fs-2 text-primary fw-extrabold mb-1"><i class="fa-solid fa-plane-departure"></i> SkyWays</div>
             </a>
             <h4 class="fw-bold text-dark mb-1">Create Customer Account</h4>
-            <p class="text-secondary small">Join SkyWays for easy flight booking and travel rewards.</p>
+            <p class="text-secondary small">Sign up with real Mobile OTP Authentication for verified access.</p>
         </div>
 
         <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-3 text-start small mb-4">
@@ -45,36 +73,82 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
-        <form method="post" action="/register" th:object="${customer}">
+        <!-- Dynamic OTP Status Toast/Alert -->
+        <div id="otpStatusAlert" class="alert d-none rounded-3 text-start small mb-4" role="alert"></div>
+
+        <form id="registerForm" method="post" action="/register" th:object="${customer}">
+            <!-- Hidden field to submit verified OTP code -->
+            <input type="hidden" id="otpCodeHidden" name="otpCode" value="" />
+
             <div class="row g-3 mb-4">
                 <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Username</label>
+                    <label class="form-label text-secondary fw-medium small">Username <span class="text-danger">*</span></label>
                     <input type="text" th:field="*{username}" class="form-control bg-light" placeholder="e.g. alex_smith" required />
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Password</label>
+                    <label class="form-label text-secondary fw-medium small">Password <span class="text-danger">*</span></label>
                     <input type="password" th:field="*{password}" class="form-control bg-light" placeholder="Create password" required />
                 </div>
                 <div class="col-md-12">
-                    <label class="form-label text-secondary fw-medium small">Full Name</label>
+                    <label class="form-label text-secondary fw-medium small">Full Name <span class="text-danger">*</span></label>
                     <input type="text" th:field="*{name}" class="form-control bg-light" placeholder="e.g. Alex Smith" required />
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Email Address</label>
+                    <label class="form-label text-secondary fw-medium small">Email Address <span class="text-danger">*</span></label>
                     <input type="email" th:field="*{email}" class="form-control bg-light" placeholder="alex@example.com" required />
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Phone Number</label>
-                    <input type="text" th:field="*{phone}" class="form-control bg-light" placeholder="+91-9876543210" required />
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label text-secondary fw-medium small">Passport Number</label>
+                    <label class="form-label text-secondary fw-medium small">Passport Number <span class="text-danger">*</span></label>
                     <input type="text" th:field="*{passportNumber}" class="form-control bg-light" placeholder="e.g. Z9876543" required />
+                </div>
+
+                <!-- Mobile Number & Real OTP Section -->
+                <div class="col-md-12">
+                    <label class="form-label text-secondary fw-medium small">Mobile Contact Number <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-secondary"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                        <input type="text" id="phoneInput" th:field="*{phone}" class="form-control bg-light" placeholder="+91-9876543210" required />
+                        <button type="button" id="sendOtpBtn" class="btn btn-outline-primary px-3 fw-semibold" onclick="triggerSendOtp()">
+                            <i class="fa-solid fa-paper-plane me-1"></i> Send OTP
+                        </button>
+                    </div>
+                </div>
+
+                <!-- OTP Verification Box (Appears after Send OTP) -->
+                <div class="col-md-12">
+                    <div id="otpContainer" class="otp-container mt-1">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <label class="form-label text-dark fw-semibold small mb-0">
+                                <i class="fa-solid fa-shield-halved text-primary me-1"></i> Enter 6-Digit Mobile OTP
+                            </label>
+                            <span id="verifiedBadge" class="badge-verified d-none">
+                                <i class="fa-solid fa-circle-check me-1"></i> Verified
+                            </span>
+                        </div>
+
+                        <div class="row g-2 align-items-center">
+                            <div class="col-7 col-sm-8">
+                                <input type="text" id="otpInput" class="form-control otp-input bg-white" placeholder="000000" maxlength="6" autocomplete="off" />
+                            </div>
+                            <div class="col-5 col-sm-4">
+                                <button type="button" id="verifyOtpBtn" class="btn btn-primary w-100 fw-semibold" onclick="triggerVerifyOtp()" disabled>
+                                    <i class="fa-solid fa-check-double me-1"></i> Verify OTP
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-2 fs-7 small text-muted">
+                            <span id="timerText">OTP expires in <strong id="countdown">05:00</strong></span>
+                            <button type="button" id="resendBtn" class="btn btn-link btn-sm p-0 text-decoration-none text-primary fw-medium" onclick="triggerSendOtp()" disabled>
+                                Resend OTP
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-sky w-100 py-2.5 fs-6 shadow-sm mb-3">
-                <i class="fa-solid fa-user-check me-2"></i> Register Account
+            <button type="submit" id="submitBtn" class="btn btn-sky w-100 py-2.5 fs-6 shadow-sm mb-3">
+                <i class="fa-solid fa-user-check me-2"></i> Complete Registration
             </button>
         </form>
 
@@ -84,5 +158,157 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let isPhoneVerified = false;
+        let timerInterval = null;
+        let activeDemoOtp = "";
+
+        function showAlert(message, type = 'info', demoOtp = null) {
+            const alertBox = document.getElementById('otpStatusAlert');
+            alertBox.className = `alert alert-${type} alert-dismissible fade show rounded-3 text-start small mb-4`;
+            
+            let html = `<div><i class="fa-solid ${type === 'success' ? 'fa-circle-check' : (type === 'danger' ? 'fa-triangle-exclamation' : 'fa-circle-info')} me-1"></i> ${message}</div>`;
+            if (demoOtp) {
+                html += `<div class="mt-2 pt-2 border-top border-opacity-25 border-dark d-flex align-items-center justify-content-between">
+                            <span><strong>Generated OTP:</strong> <code class="fs-6 fw-bold text-dark bg-white px-2 py-1 rounded">${demoOtp}</code></span>
+                            <button type="button" class="btn btn-sm btn-dark py-0" onclick="autofillOtp('${demoOtp}')">Autofill OTP</button>
+                         </div>`;
+            }
+            alertBox.innerHTML = html;
+            alertBox.classList.remove('d-none');
+        }
+
+        function autofillOtp(code) {
+            const input = document.getElementById('otpInput');
+            input.value = code;
+            document.getElementById('verifyOtpBtn').disabled = false;
+            triggerVerifyOtp();
+        }
+
+        function startCountdown(seconds) {
+            clearInterval(timerInterval);
+            let remaining = seconds;
+            const timerText = document.getElementById('countdown');
+            const resendBtn = document.getElementById('resendBtn');
+            resendBtn.disabled = true;
+
+            timerInterval = setInterval(() => {
+                const mins = String(Math.floor(remaining / 60)).padStart(2, '0');
+                const secs = String(remaining % 60).padStart(2, '0');
+                timerText.textContent = `${mins}:${secs}`;
+                
+                if (remaining <= 0) {
+                    clearInterval(timerInterval);
+                    timerText.textContent = "00:00 (Expired)";
+                    resendBtn.disabled = false;
+                }
+                remaining--;
+            }, 1000);
+        }
+
+        async function triggerSendOtp() {
+            const phoneInput = document.getElementById('phoneInput');
+            const phone = phoneInput.value.trim();
+
+            if (!phone || phone.length < 7) {
+                showAlert('Please enter a valid mobile contact number first.', 'warning');
+                phoneInput.focus();
+                return;
+            }
+
+            const sendBtn = document.getElementById('sendOtpBtn');
+            const originalText = sendBtn.innerHTML;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span> Sending...`;
+
+            try {
+                const response = await fetch('/api/otp/send?phone=' + encodeURIComponent(phone), {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    activeDemoOtp = data.demoOtp || "";
+                    document.getElementById('otpContainer').classList.add('active');
+                    document.getElementById('verifyOtpBtn').disabled = false;
+                    showAlert(data.message, 'success', activeDemoOtp);
+                    startCountdown(300); // 5 minutes validity
+                } else {
+                    showAlert(data.message || 'Failed to send OTP.', 'danger');
+                }
+            } catch (err) {
+                showAlert('Network error while requesting OTP: ' + err.message, 'danger');
+            } finally {
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = originalText;
+            }
+        }
+
+        async function triggerVerifyOtp() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const otp = document.getElementById('otpInput').value.trim();
+            const verifyBtn = document.getElementById('verifyOtpBtn');
+
+            if (!otp || otp.length !== 6) {
+                showAlert('Please enter the full 6-digit OTP.', 'warning');
+                return;
+            }
+
+            const originalText = verifyBtn.innerHTML;
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span>`;
+
+            try {
+                const response = await fetch(`/api/otp/verify?phone=${encodeURIComponent(phone)}&otp=${encodeURIComponent(otp)}`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    isPhoneVerified = true;
+                    document.getElementById('otpCodeHidden').value = otp;
+                    document.getElementById('otpContainer').className = 'otp-container verified mt-1';
+                    document.getElementById('verifiedBadge').classList.remove('d-none');
+                    document.getElementById('otpInput').disabled = true;
+                    document.getElementById('phoneInput').readOnly = true;
+                    document.getElementById('sendOtpBtn').disabled = true;
+                    verifyBtn.className = 'btn btn-success w-100 fw-semibold';
+                    verifyBtn.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i> Verified`;
+                    showAlert('Mobile OTP Authentication Successful! You can now complete registration.', 'success');
+                } else {
+                    isPhoneVerified = false;
+                    showAlert(data.message || 'Invalid OTP code. Please try again.', 'danger');
+                    verifyBtn.disabled = false;
+                    verifyBtn.innerHTML = originalText;
+                }
+            } catch (err) {
+                showAlert('Error verifying OTP: ' + err.message, 'danger');
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = originalText;
+            }
+        }
+
+        // Auto-enable verify button when 6 digits entered
+        document.getElementById('otpInput').addEventListener('input', function(e) {
+            const val = e.target.value.replace(/[^0-9]/g, '');
+            e.target.value = val;
+            if (val.length === 6 && !isPhoneVerified) {
+                document.getElementById('verifyOtpBtn').disabled = false;
+            }
+        });
+
+        // Form Submit check
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const otpVal = document.getElementById('otpInput').value.trim();
+            document.getElementById('otpCodeHidden').value = otpVal;
+
+            if (!isPhoneVerified && otpVal.length !== 6) {
+                e.preventDefault();
+                showAlert('Please send and verify the Mobile OTP before registering.', 'warning');
+                document.getElementById('phoneInput').focus();
+            }
+        });
+    </script>
 </body>
 </html>
