@@ -3,158 +3,401 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register & Mobile OTP Verification | SkyWays Airlines</title>
+    <title>Register & Mobile OTP Authentication | SkyWays Airlines</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-blue: #0284c7;
+            --primary-hover: #0369a1;
+            --navy-dark: #0f172a;
+            --navy-card: #1e293b;
+            --sky-accent: #38bdf8;
+            --emerald-green: #10b981;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0b132b 0%, #1c2541 100%);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1e293b 0%, #0f172a 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem 1rem;
+            color: #334155;
         }
-        .register-card {
+
+        .split-card {
             background: #ffffff;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            max-width: 620px;
+            border-radius: 32px;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.4), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+            max-width: 1040px;
             width: 100%;
-            padding: 2.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .btn-sky { background-color: #00b4d8; color: #ffffff; font-weight: 600; border-radius: 12px; }
-        .btn-sky:hover { background-color: #0077b6; color: #ffffff; }
-        .otp-container {
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
-            border-radius: 16px;
-            padding: 1.25rem;
+
+        /* Left Hero Sidebar */
+        .hero-sidebar {
+            background: linear-gradient(145deg, #0b132b 0%, #1c2541 60%, #0077b6 100%);
+            color: #ffffff;
+            padding: 3.5rem 3rem;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .hero-sidebar::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            background: rgba(56, 189, 248, 0.15);
+            border-radius: 50%;
+            filter: blur(50px);
+        }
+
+        .hero-sidebar::after {
+            content: '';
+            position: absolute;
+            bottom: -60px;
+            left: -60px;
+            width: 280px;
+            height: 280px;
+            background: rgba(2, 132, 199, 0.2);
+            border-radius: 50%;
+            filter: blur(60px);
+        }
+
+        .perk-item {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            padding: 1.1rem 1.25rem;
+            margin-bottom: 1rem;
             transition: all 0.3s ease;
         }
-        .otp-container.active {
-            border-color: #00b4d8;
-            background: #f0f9ff;
+
+        .perk-item:hover {
+            transform: translateX(6px);
+            background: rgba(255, 255, 255, 0.14);
+            border-color: var(--sky-accent);
         }
-        .otp-container.verified {
-            border-color: #22c55e;
+
+        .perk-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #ffffff;
+            box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3);
+        }
+
+        /* Form Area */
+        .form-section {
+            padding: 3.25rem 3rem;
+            background: #ffffff;
+        }
+
+        .input-group-custom {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            z-index: 10;
+            font-size: 0.95rem;
+        }
+
+        .form-control-styled {
+            padding-left: 2.6rem;
+            height: 48px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background-color: #f8fafc;
+            font-size: 0.92rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .form-control-styled:focus {
+            background-color: #ffffff;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
+        }
+
+        /* OTP Section Styling */
+        .otp-box {
+            background: #f1f5f9;
+            border: 2px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 1.35rem;
+            transition: all 0.3s ease;
+        }
+
+        .otp-box.active {
+            border-color: var(--primary-blue);
+            background: #f0f9ff;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.15);
+        }
+
+        .otp-box.verified {
+            border-color: var(--emerald-green);
             background: #f0fdf4;
         }
-        .otp-input {
-            letter-spacing: 0.5rem;
-            font-size: 1.25rem;
-            font-weight: 700;
+
+        .otp-digit-input {
+            letter-spacing: 0.6rem;
+            font-size: 1.35rem;
+            font-weight: 800;
             text-align: center;
+            height: 50px;
+            border-radius: 12px;
+            border: 2px solid #cbd5e1;
         }
-        .badge-verified {
-            background-color: #dcfce7;
-            color: #166534;
-            font-size: 0.85rem;
-            padding: 0.35rem 0.75rem;
+
+        .otp-digit-input:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: #ffffff;
+            font-weight: 700;
+            height: 52px;
+            border-radius: 14px;
+            border: none;
+            box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.4);
+            transition: all 0.25s ease;
+        }
+
+        .btn-register:hover {
+            background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 14px 26px -5px rgba(2, 132, 199, 0.5);
+            color: #ffffff;
+        }
+
+        .step-pill {
+            background: #e0f2fe;
+            color: #0369a1;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 0.35rem 0.85rem;
             border-radius: 50rem;
+            letter-spacing: 0.03em;
+        }
+
+        @media (max-width: 991.98px) {
+            .hero-sidebar {
+                padding: 2.5rem 2rem;
+            }
+            .form-section {
+                padding: 2.5rem 2rem;
+            }
         }
     </style>
 </head>
 <body>
 
-    <div class="register-card">
-        <div class="text-center mb-4">
-            <a href="/" class="text-decoration-none">
-                <div class="fs-2 text-primary fw-extrabold mb-1"><i class="fa-solid fa-plane-departure"></i> SkyWays</div>
-            </a>
-            <h4 class="fw-bold text-dark mb-1">Create Customer Account</h4>
-            <p class="text-secondary small">Sign up with real Mobile OTP Authentication for verified access.</p>
-        </div>
+    <div class="split-card">
+        <div class="row g-0">
+            <!-- Left Branding Hero Sidebar -->
+            <div class="col-lg-5 hero-sidebar">
+                <div class="position-relative z-1">
+                    <a href="/" class="text-decoration-none d-inline-block mb-4">
+                        <div class="fs-3 text-white fw-extrabold d-flex align-items-center gap-2">
+                            <span class="bg-white text-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                                <i class="fa-solid fa-plane-departure fs-5"></i>
+                            </span>
+                            <span>SkyWays</span>
+                        </div>
+                    </a>
 
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-3 text-start small mb-4">
-            <i class="fa-solid fa-triangle-exclamation me-1"></i> <span th:text="${error}">Error creating account</span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+                    <h2 class="fw-bold text-white mb-2">Elevate Your Travel Experience</h2>
+                    <p class="text-white-50 small mb-4">Join millions of travelers who book international flights with verified security & instant rewards.</p>
 
-        <!-- Dynamic OTP Status Toast/Alert -->
-        <div id="otpStatusAlert" class="alert d-none rounded-3 text-start small mb-4" role="alert"></div>
+                    <!-- Feature Perks -->
+                    <div class="perk-item d-flex align-items-center gap-3">
+                        <div class="perk-icon">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-white">Real Mobile OTP Security</div>
+                            <div class="small text-white-50" style="font-size: 0.78rem;">Instant 6-digit SMS verification</div>
+                        </div>
+                    </div>
 
-        <form id="registerForm" method="post" action="/register" th:object="${customer}">
-            <!-- Hidden field to submit verified OTP code -->
-            <input type="hidden" id="otpCodeHidden" name="otpCode" value="" />
+                    <div class="perk-item d-flex align-items-center gap-3">
+                        <div class="perk-icon">
+                            <i class="fa-solid fa-ticket-simple"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-white">Instant E-Ticket & PNR</div>
+                            <div class="small text-white-50" style="font-size: 0.78rem;">Seamless mobile check-in anytime</div>
+                        </div>
+                    </div>
 
-            <div class="row g-3 mb-4">
-                <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Username <span class="text-danger">*</span></label>
-                    <input type="text" th:field="*{username}" class="form-control bg-light" placeholder="e.g. alex_smith" required />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Password <span class="text-danger">*</span></label>
-                    <input type="password" th:field="*{password}" class="form-control bg-light" placeholder="Create password" required />
-                </div>
-                <div class="col-md-12">
-                    <label class="form-label text-secondary fw-medium small">Full Name <span class="text-danger">*</span></label>
-                    <input type="text" th:field="*{name}" class="form-control bg-light" placeholder="e.g. Alex Smith" required />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Email Address <span class="text-danger">*</span></label>
-                    <input type="email" th:field="*{email}" class="form-control bg-light" placeholder="alex@example.com" required />
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label text-secondary fw-medium small">Passport Number <span class="text-danger">*</span></label>
-                    <input type="text" th:field="*{passportNumber}" class="form-control bg-light" placeholder="e.g. Z9876543" required />
-                </div>
-
-                <!-- Mobile Number & Real OTP Section -->
-                <div class="col-md-12">
-                    <label class="form-label text-secondary fw-medium small">Mobile Contact Number <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light text-secondary"><i class="fa-solid fa-mobile-screen-button"></i></span>
-                        <input type="text" id="phoneInput" th:field="*{phone}" class="form-control bg-light" placeholder="+91-9876543210" required />
-                        <button type="button" id="sendOtpBtn" class="btn btn-outline-primary px-3 fw-semibold" onclick="triggerSendOtp()">
-                            <i class="fa-solid fa-paper-plane me-1"></i> Send OTP
-                        </button>
+                    <div class="perk-item d-flex align-items-center gap-3">
+                        <div class="perk-icon">
+                            <i class="fa-solid fa-gift"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-6 text-white">SkyRewards Loyalty Miles</div>
+                            <div class="small text-white-50" style="font-size: 0.78rem;">Earn cashback on every journey</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- OTP Verification Box (Appears after Send OTP) -->
-                <div class="col-md-12">
-                    <div id="otpContainer" class="otp-container mt-1">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <label class="form-label text-dark fw-semibold small mb-0">
-                                <i class="fa-solid fa-shield-halved text-primary me-1"></i> Enter 6-Digit Mobile OTP
-                            </label>
-                            <span id="verifiedBadge" class="badge-verified d-none">
-                                <i class="fa-solid fa-circle-check me-1"></i> Verified
-                            </span>
-                        </div>
-
-                        <div class="row g-2 align-items-center">
-                            <div class="col-7 col-sm-8">
-                                <input type="text" id="otpInput" class="form-control otp-input bg-white" placeholder="000000" maxlength="6" autocomplete="off" />
-                            </div>
-                            <div class="col-5 col-sm-4">
-                                <button type="button" id="verifyOtpBtn" class="btn btn-primary w-100 fw-semibold" onclick="triggerVerifyOtp()" disabled>
-                                    <i class="fa-solid fa-check-double me-1"></i> Verify OTP
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center mt-2 fs-7 small text-muted">
-                            <span id="timerText">OTP expires in <strong id="countdown">05:00</strong></span>
-                            <button type="button" id="resendBtn" class="btn btn-link btn-sm p-0 text-decoration-none text-primary fw-medium" onclick="triggerSendOtp()" disabled>
-                                Resend OTP
-                            </button>
-                        </div>
+                <!-- Footer Stat Trust Badge -->
+                <div class="pt-4 border-top border-white border-opacity-10 d-flex align-items-center justify-content-between position-relative z-1">
+                    <div>
+                        <div class="fw-bold text-white fs-5">1.2M+</div>
+                        <div class="text-white-50 small" style="font-size: 0.75rem;">Registered Passengers</div>
+                    </div>
+                    <div class="text-end">
+                        <div class="text-warning small"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        <div class="text-white-50 small" style="font-size: 0.75rem;">4.9/5 Rating</div>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" id="submitBtn" class="btn btn-sky w-100 py-2.5 fs-6 shadow-sm mb-3">
-                <i class="fa-solid fa-user-check me-2"></i> Complete Registration
-            </button>
-        </form>
+            <!-- Right Registration Form & OTP Area -->
+            <div class="col-lg-7 form-section">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div>
+                        <span class="step-pill"><i class="fa-solid fa-lock me-1"></i> VERIFIED SIGNUP</span>
+                        <h4 class="fw-extrabold text-dark mt-2 mb-0">Create Customer Account</h4>
+                    </div>
+                    <a href="/login" class="btn btn-light rounded-pill btn-sm px-3 text-secondary fw-semibold">
+                        Log In <i class="fa-solid fa-arrow-right-to-bracket ms-1"></i>
+                    </a>
+                </div>
 
-        <p class="text-center mb-0 small text-secondary">
-            Already have an account? <a href="/login" class="fw-semibold text-primary text-decoration-none">Log In</a>
-        </p>
+                <!-- Error Alert -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show rounded-3 text-start small mb-4">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i> <span th:text="${error}">Error creating account</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Dynamic OTP Status Toast/Alert -->
+                <div id="otpStatusAlert" class="alert d-none rounded-3 text-start small mb-4" role="alert"></div>
+
+                <form id="registerForm" method="post" action="/register" th:object="${customer}">
+                    <!-- Hidden field to submit verified OTP code -->
+                    <input type="hidden" id="otpCodeHidden" name="otpCode" value="" />
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary fw-semibold small">Username <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <i class="fa-solid fa-user input-icon"></i>
+                                <input type="text" th:field="*{username}" class="form-control form-control-styled" placeholder="e.g. alex_smith" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary fw-semibold small">Password <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <i class="fa-solid fa-lock input-icon"></i>
+                                <input type="password" th:field="*{password}" class="form-control form-control-styled" placeholder="Create password" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label text-secondary fw-semibold small">Full Name <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <i class="fa-solid fa-id-card input-icon"></i>
+                                <input type="text" th:field="*{name}" class="form-control form-control-styled" placeholder="e.g. Alex Smith" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary fw-semibold small">Email Address <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <i class="fa-solid fa-envelope input-icon"></i>
+                                <input type="email" th:field="*{email}" class="form-control form-control-styled" placeholder="alex@example.com" required />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary fw-semibold small">Passport Number <span class="text-danger">*</span></label>
+                            <div class="input-group-custom">
+                                <i class="fa-solid fa-passport input-icon"></i>
+                                <input type="text" th:field="*{passportNumber}" class="form-control form-control-styled" placeholder="e.g. Z9876543" required />
+                            </div>
+                        </div>
+
+                        <!-- Mobile Number & Real OTP Request Section -->
+                        <div class="col-md-12">
+                            <label class="form-label text-secondary fw-semibold small">Mobile Contact Number <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-1 rounded-start-3 text-secondary"><i class="fa-solid fa-mobile-screen-button"></i></span>
+                                <input type="text" id="phoneInput" th:field="*{phone}" class="form-control form-control-styled rounded-0" placeholder="+91-9876543210" required />
+                                <button type="button" id="sendOtpBtn" class="btn btn-primary px-3.5 fw-bold rounded-end-3" onclick="triggerSendOtp()">
+                                    <i class="fa-solid fa-paper-plane me-1"></i> Send OTP
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Real OTP Verification Interactive Card -->
+                        <div class="col-md-12">
+                            <div id="otpBox" class="otp-box mt-1">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <label class="form-label text-dark fw-bold small mb-0 d-flex align-items-center gap-1">
+                                        <i class="fa-solid fa-shield-halved text-primary"></i> Enter 6-Digit Mobile OTP
+                                    </label>
+                                    <span id="verifiedBadge" class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 fw-bold d-none">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Verified
+                                    </span>
+                                </div>
+
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-7 col-sm-8">
+                                        <input type="text" id="otpInput" class="form-control otp-digit-input bg-white" placeholder="000000" maxlength="6" autocomplete="off" />
+                                    </div>
+                                    <div class="col-5 col-sm-4">
+                                        <button type="button" id="verifyOtpBtn" class="btn btn-primary w-100 fw-bold h-100 py-2.5 rounded-3" onclick="triggerVerifyOtp()" disabled>
+                                            <i class="fa-solid fa-check-double me-1"></i> Verify OTP
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center mt-2.5 fs-7 small text-muted">
+                                    <span id="timerText">OTP expires in <strong id="countdown" class="text-dark">05:00</strong></span>
+                                    <button type="button" id="resendBtn" class="btn btn-link btn-sm p-0 text-decoration-none text-primary fw-semibold" onclick="triggerSendOtp()" disabled>
+                                        Resend OTP
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="btn btn-register w-100 fs-6 shadow-sm mb-3">
+                        <i class="fa-solid fa-user-check me-2"></i> Verify & Register Account
+                    </button>
+                </form>
+
+                <p class="text-center mb-0 small text-secondary">
+                    Already registered? <a href="/login" class="fw-bold text-primary text-decoration-none">Log In Here</a>
+                </p>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -171,8 +414,8 @@
             let html = `<div><i class="fa-solid ${type === 'success' ? 'fa-circle-check' : (type === 'danger' ? 'fa-triangle-exclamation' : 'fa-circle-info')} me-1"></i> ${message}</div>`;
             if (demoOtp) {
                 html += `<div class="mt-2 pt-2 border-top border-opacity-25 border-dark d-flex align-items-center justify-content-between">
-                            <span><strong>Generated OTP:</strong> <code class="fs-6 fw-bold text-dark bg-white px-2 py-1 rounded">${demoOtp}</code></span>
-                            <button type="button" class="btn btn-sm btn-dark py-0" onclick="autofillOtp('${demoOtp}')">Autofill OTP</button>
+                            <span><strong>Generated Real OTP:</strong> <code class="fs-6 fw-extrabold text-dark bg-white px-2 py-1 rounded border">${demoOtp}</code></span>
+                            <button type="button" class="btn btn-sm btn-dark px-3 py-1 fw-semibold rounded-pill" onclick="autofillOtp('${demoOtp}')">Autofill OTP</button>
                          </div>`;
             }
             alertBox.innerHTML = html;
@@ -230,7 +473,7 @@
 
                 if (data.success) {
                     activeDemoOtp = data.demoOtp || "";
-                    document.getElementById('otpContainer').classList.add('active');
+                    document.getElementById('otpBox').classList.add('active');
                     document.getElementById('verifyOtpBtn').disabled = false;
                     showAlert(data.message, 'success', activeDemoOtp);
                     startCountdown(300); // 5 minutes validity
@@ -268,12 +511,12 @@
                 if (data.success) {
                     isPhoneVerified = true;
                     document.getElementById('otpCodeHidden').value = otp;
-                    document.getElementById('otpContainer').className = 'otp-container verified mt-1';
+                    document.getElementById('otpBox').className = 'otp-box verified mt-1';
                     document.getElementById('verifiedBadge').classList.remove('d-none');
                     document.getElementById('otpInput').disabled = true;
                     document.getElementById('phoneInput').readOnly = true;
                     document.getElementById('sendOtpBtn').disabled = true;
-                    verifyBtn.className = 'btn btn-success w-100 fw-semibold';
+                    verifyBtn.className = 'btn btn-success w-100 fw-bold h-100 py-2.5 rounded-3';
                     verifyBtn.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i> Verified`;
                     showAlert('Mobile OTP Authentication Successful! You can now complete registration.', 'success');
                 } else {
